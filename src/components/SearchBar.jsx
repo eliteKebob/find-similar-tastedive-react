@@ -1,6 +1,6 @@
 import { FaSearch } from "react-icons/fa"
 
-const SearchBar = ({ query, setQuery, findSimilar }) => {
+const SearchBar = ({ query, setQuery, findSimilar, loading }) => {
   return (
     <div className="search-bar">
       <div className="search">
@@ -13,7 +13,9 @@ const SearchBar = ({ query, setQuery, findSimilar }) => {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search"
         />
-        <button onClick={() => findSimilar()}>Search</button>
+        <button onClick={() => findSimilar()} disabled={loading}>
+          Search
+        </button>
       </div>
     </div>
   )

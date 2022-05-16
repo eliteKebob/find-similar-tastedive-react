@@ -1,19 +1,28 @@
-import { useState } from "react"
+import { useState, useReducer } from "react"
 import axios from "axios"
 import Header from "./components/Header"
 import TypeBar from "./components/TypeBar"
 import SearchBar from "./components/SearchBar"
 import Results from "./components/Results"
 import Loading from "./components/Loading"
+import { reducer } from "./reducer.js"
+
+const initialState = {
+  searchResults: "",
+  loading: false,
+  query: "",
+  type: "everything",
+  error: "",
+}
 
 function App() {
+  const [state, dispatch] = useReducer(reducer, initialState)
+  const { searchResults, loading, error } = state
   const [type, setType] = useState("everything")
-  const [loading, setLoading] = useState(false)
   const [query, setQuery] = useState("")
-  const [searchResults, setSearchResults] = useState("")
 
   const findSimilar = async () => {
-    setLoading(true)
+    dispatch({ type: "FETCH_START" })
     try {
       let config = {
         method: "get",
@@ -28,18 +37,17 @@ function App() {
       }
       const response = await axios(config)
       if (response.data) {
-        setLoading(false)
-        setSearchResults(response.data)
+        dispatch({ type: "FETCH_SUCCESS", payload: response.data })
         console.log(response.data)
       }
     } catch (error) {
+      dispatch({ type: "FETCH_ERROR", payload: "Network Error" })
       console.log(error)
-      setLoading(false)
     }
   }
 
   const handleClear = () => {
-    setSearchResults("")
+    dispatch({ type: "STATE_CLEAR" })
     setQuery("")
     setType("")
   }
@@ -48,13 +56,17 @@ function App() {
     <>
       <Header />
       <TypeBar type={type} setType={setType} />
-      <SearchBar query={query} setQuery={setQuery} findSimilar={findSimilar} />
+      <SearchBar
+        query={query}
+        setQuery={setQuery}
+        findSimilar={findSimilar}
+        loading={loading}
+      />
       <div className="wrapper">
         {loading ? <Loading /> : ""}
-        {searchResults !== "" ? (
+        {error ? <p>{error}</p> : ""}
+        {searchResults !== "" && (
           <button onClick={() => handleClear()}>Clear All</button>
-        ) : (
-          ""
         )}
         {searchResults !== "" ? <Results searchResults={searchResults} /> : ""}
       </div>

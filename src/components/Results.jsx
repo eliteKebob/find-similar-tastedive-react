@@ -2,6 +2,8 @@ import { FaWikipediaW } from "react-icons/fa"
 import SimilarResult from "./SimilarResult"
 
 const Results = ({ searchResults }) => {
+  document.title = searchResults?.Similar?.Info[0]?.Name
+
   return (
     <div className="results">
       <div className="main-result">
